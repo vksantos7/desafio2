@@ -1,7 +1,8 @@
 package com.example.desafio2.service;
 
 import com.example.desafio2.entity.Carros;
-import com.example.desafio2.exception.CarrosException;
+import com.example.desafio2.entity.Motos;
+import com.example.desafio2.exception.MotosException;
 import com.example.desafio2.repository.MotosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,40 +14,40 @@ public class MotosService {
         @Autowired
         MotosRepository motosRepository;
 
-        public Carros salvar(Carros carros) {
-            if (motosRepository.existsByMarca(carros.getMarca())) {
-                throw new CarrosException("Carro ja existente");
+        public Motos salvar(Motos motos) {
+            if (motosRepository.existsByMarca(motos.getMarca())) {
+                throw new MotosException("Moto ja existente");
             }
-            return motosRepository.save(carros);
+            return motosRepository.save(motos);
         }
 
-        public Carros atualizar(Carros carros, Long id) {
+        public Motos atualizar(Motos motos, Long id) {
             if (!motosRepository.existsById(id)) {
-                throw new CarrosException("Carro nao encontrado");
+                throw new MotosException("moto nao encontrado");
             }
-            carros.setId(id);
-            return motosRepository.save(carros);
+            motos.setId(id);
+            return motosRepository.save(motos);
         }
 
-        public List<Carros> listarTodos() {
-            List<Carros> carros = motosRepository.findAll();
-            if (carros.isEmpty()) {
-                throw new CarrosException("Nenhum carro encontrado");
+        public List<Motos> listarTodos() {
+            List<Motos> motos = motosRepository.findAll();
+            if (motos.isEmpty()) {
+                throw new MotosException("Nenhum moto encontrado");
             }
-            return carros;
+            return motos;
         }
 
-        public Carros buscarPorMarca(Long marca) {
-            Carros carros = motosRepository.findByMarca(marca);
-            if (carros == null) {
-                throw new CarrosException("Carro nao encontrado");
+        public Motos buscarPorMarca(Long marca) {
+            Motos motos = motosRepository.findByMarca(marca);
+            if (motos == null) {
+                throw new MotosException("motos nao encontrado");
             }
-            return carros;
+            return motos;
         }
 
         public void deletar(Long id){
-            Carros carros = motosRepository.findById(id)
-                    .orElseThrow(() -> new CarrosException("Carro nao encontrado"));
-            motosRepository.delete(carros);
+            Motos motos = motosRepository.findById(id)
+                    .orElseThrow(() -> new MotosException("moto nao encontrado"));
+            motosRepository.delete(motos);
         }
 }
