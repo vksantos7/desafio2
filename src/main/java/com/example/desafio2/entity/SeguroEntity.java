@@ -5,32 +5,35 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "seguros_cliente")
+@Table(name = "tb_seguros")
 public class SeguroEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
+    private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String numeroApolice;
 
     @Column(nullable = false)
     private String tipo;
 
     @Column(nullable = false)
-    private String valorPremio;
+    private BigDecimal valorPremio;
 
     @Column(nullable = false)
-    private String dataInicio;
+    private LocalDate dataInicio;
 
     @Column(nullable = false)
-    private String dataFim;
+    private LocalDate dataFim;
 
-    public String getStatus(){
-        return null;
-    }
+    @Column(nullable = false)
+    private String status;
 }

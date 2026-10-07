@@ -5,11 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
-@Table(name = "tab_cliente")
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Table(name = "tb_clientes")
 public class ClienteEntity {
 
     @Id
@@ -19,14 +21,25 @@ public class ClienteEntity {
     @Column(nullable = false)
     private String nome;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
+    private String cpf;
+
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
     private String telefone;
 
-    public String getEmail(){
-        return null;
-    }
+    @Column(nullable = false)
+    private String endereco;
 
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime dataCadastro;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.dataCadastro == null) {
+            this.dataCadastro = LocalDateTime.now();
+        }
+    }
 }

@@ -1,33 +1,70 @@
 package com.example.desafio2.service;
 
 import com.example.desafio2.entity.ClienteEntity;
+import com.example.desafio2.exception.ClienteException;
 import com.example.desafio2.repository.ClienteRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
-@Repository
+@Service
 public class ClienteService {
 
-    @Autowired
-    private ClienteRepository clienteRepository;
+    private final ClienteRepository clienteRepository;
 
-    public ClienteEntity salvar(ClienteEntity cliente) {
-        ClienteEntity save = clienteRepository.save(cliente);
-        return save;
+    public ClienteService(ClienteRepository clienteRepository) {
+        this.clienteRepository = clienteRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<ClienteEntity> listarTodos() {
         return clienteRepository.findAll();
-
     }
 
-    public Optional<ClienteEntity> buscarPorId(Long id) {
-        return  clienteRepository.findById(id);
+    @Transactional(readOnly = true)
+    public ClienteEntity buscarPorId(Long id) {
+        return clienteRepository.findById(id)
+                .orElseThrow(() -> new ClienteException("Cliente não encontrado com o ID: " + id));
     }
-    public void deletar(Long id){
-        clienteRepository.deleteById(id);
+
+    @Transactional
+    public ClienteEntity salvar(ClienteEntity cliente) {
+        if (clienteRepository.existsByCpf(cliente.getCpf())) {
+            throw new ClienteException("Já existe um cliente cadastrado com o CPF: " + cliente.getCpf());
+        }
+        if (clienteRepository.existsByEmail(cliente.getEmail())) {
+            throw new ClienteException("Já existe um cliente cadastrado com o e-mail: " + cliente.getEmail());
+        }
+        return clienteRepository.save(cliente);
+    }
+
+    @Transactional
+    public ClienteEntity atualizar(Long id, ClienteEntity clienteAtualizado) {
+        ClienteEntity clienteExistente = buscarPorId(id);
+
+        if (!clienteExistente.getCpf().equals(clienteAtualizado.getCpf())
+                && clienteRepository.existsByCpf(clienteAtualizado.getCpf())) {
+            throw new ClienteException("Já existe outro cliente cadastrado com o CPF fornecido.");
+        }
+
+        if (!clienteExistente.getEmail().equalsIgnoreCase(clienteAtualizado.getEmail())
+                && clienteRepository.existsByEmail(clienteAtualizado.getEmail())) {
+            throw new ClienteException("Já existe outro cliente cadastrado com o e-mail fornecido.");
+        }
+
+        clienteExistente.setNome(clienteAtualizado.getNome());
+        clienteExistente.setCpf(clienteAtualizado.getCpf());
+        clienteExistente.setEmail(clienteAtualizado.getEmail());
+        clienteExistente.setTelefone(clienteAtualizado.getTelefone());
+        clienteExistente.setEndereco(clienteAtualizado.getEndereco());
+
+        return clienteRepository.save(clienteExistente);
+    }
+
+    @Transactional
+    public void deletar(Long id) {
+        ClienteEntity cliente = buscarPorId(id);
+        clienteRepository.delete(cliente);
     }
 }
